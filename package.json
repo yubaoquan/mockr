@@ -1,0 +1,20 @@
+{
+  "name": "mockr",
+  "version": "0.0.1",
+  "description": "A simple mock server based on koa.",
+  "main": "index.js",
+  "registry": "https://registry.npmjs.org/",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "mock",
+    "koa"
+  ],
+  "author": "yubaoquan",
+  "license": "ISC",
+  "dependencies": {
+    "eslint": "^4.19.1",
+    "koa": "^2.5.1"
+  }
+}
