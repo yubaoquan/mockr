@@ -2,7 +2,22 @@ module.exports = {
     restfulURLs: [
         ['/a', null, '/b', null],
     ],
-    specialPageEntryMap: './page-entry.json5',
+    pageEntries: [
+        {
+            url: '/page',
+            template: '/page/entry',
+            syncDataPath: '/pageASpecial',
+        },
+        {
+            url: (url) => url.includes('pageEntry'),
+            template: '/page/entry2',
+        },
+        {
+            url: /^\/regexp\/page/,
+            template: '/page/entry3',
+        },
+    ],
+    syncDataRoot: '',
     controllerRoot: './controller',
     specialControllers: [
         {

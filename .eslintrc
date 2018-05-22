@@ -189,17 +189,11 @@
         "no-undef": "error",
         "arrow-spacing": "error",
         // let和const优先使用const
-        "prefer-const": "error",
+        // "prefer-const": "error",
         // 注释双斜杠后加一个空格, ----和++++例外
         "spaced-comment": [
             "error",
-            "always",
-            {
-                "exceptions": [
-                    "-",
-                    "+"
-                ]
-            }
+            "always"
         ],
         // 代码块花括号内不允许有空行
         "padded-blocks": [

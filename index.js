@@ -4,6 +4,8 @@ const Koa = require('koa')
 const path = require('path')
 const fs = require('fs')
 const cwd = process.cwd()
+const { getType } = require('./util')
+const render = require('./render')
 
 const configFilepath = path.resolve(cwd, './mockr-config.js')
 if (!fs.existsSync(configFilepath)) {
@@ -15,6 +17,9 @@ let config = require(configFilepath)
 config = Object.assign({
     specialControllers: {},
     controllerRoot: cwd,
+    mockServer: {
+        port: 3000,
+    },
 }, config)
 
 const app = new Koa()
@@ -80,11 +85,11 @@ function getRestfulControllerPath(requestPath) {
         return everyEq
     })
     if (matchedItem) {
-        return getControllerPathOfRestfulTemplate(matchedItem)
+        return getControllerPathByRestfulTemplate(matchedItem)
     }
 }
 
-function getControllerPathOfRestfulTemplate(template) {
+function getControllerPathByRestfulTemplate(template) {
     const controllerRelativePath = template.map((part) => {
         if (part == null) {
             return '_param'
@@ -94,9 +99,39 @@ function getControllerPathOfRestfulTemplate(template) {
     return path.resolve(cwd, config.controllerRoot, `./${controllerRelativePath}`)
 }
 
+function getPageEntry(url) {
+    const entry = config.pageEntries.find((item) => {
+        switch (getType(item.url)) {
+            case 'rexexp': return item.url.test(url)
+            case 'function': return item.url(url)
+            case 'string': return item.url === url
+            default: return false
+        }
+    })
+    return entry
+}
+
+function getPageSyncData(ctx, pageEntry) {
+    let requirePath = pageEntry.syncDataPath || ctx.request.path
+    requirePath = path.resolve(config.syncDataRoot, requirePath)
+    let data = require(requirePath)
+    if (getType(data) === 'function') {
+        data = data(ctx)
+    }
+    delete require.cache[requirePath]
+    return data
+}
+
 app.use(ctx => {
-    const controllerPath = getControllerPath(ctx)
-    callControllerOnce(controllerPath, ctx)
+    const pageEntry = getPageEntry(ctx.url)
+    if (pageEntry) {
+        const syncData = getPageSyncData(pageEntry)
+        const templateFilepath = path.resolve(cwd, config.templateRoot, pageEntry.file)
+        render(templateFilepath, syncData, config)
+    } else {
+        const controllerPath = getControllerPath(ctx)
+        callControllerOnce(controllerPath, ctx)
+    }
 })
 
-app.listen(3000)
+app.listen(config.mockServer.port || 3000)
