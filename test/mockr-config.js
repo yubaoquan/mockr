@@ -1,5 +1,7 @@
 module.exports = {
-    restfulURLs: [],
+    restfulURLs: [
+        ['/a', null, '/b', null],
+    ],
     specialPageEntryMap: './page-entry.json5',
     controllerRoot: './controller',
     specialControllers: [
