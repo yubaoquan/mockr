@@ -4,8 +4,7 @@ const Koa = require('koa')
 const path = require('path')
 const fs = require('fs')
 const cwd = process.cwd()
-const { getType } = require('./util')
-const render = require('./render')
+const { getType } = require('./util/type')
 
 const configFilepath = path.resolve(cwd, './mockr-config.js')
 if (!fs.existsSync(configFilepath)) {
@@ -21,6 +20,8 @@ config = Object.assign({
         port: 3000,
     },
 }, config)
+
+const render = require('./render')(config)
 
 const app = new Koa()
 
@@ -99,8 +100,12 @@ function getControllerPathByRestfulTemplate(template) {
     return path.resolve(cwd, config.controllerRoot, `./${controllerRelativePath}`)
 }
 
-function getPageEntry(url) {
-    const entry = config.pageEntries.find((item) => {
+function getPageEntry(ctx) {
+    let { url, request } = ctx
+    if (!/^get$/i.test(request.method)) {
+        return
+    }
+    return config.pageEntries.find((item) => {
         switch (getType(item.url)) {
             case 'rexexp': return item.url.test(url)
             case 'function': return item.url(url)
@@ -108,7 +113,6 @@ function getPageEntry(url) {
             default: return false
         }
     })
-    return entry
 }
 
 function getPageSyncData(ctx, pageEntry) {
@@ -122,16 +126,30 @@ function getPageSyncData(ctx, pageEntry) {
     return data
 }
 
-app.use(ctx => {
-    const pageEntry = getPageEntry(ctx.url)
-    if (pageEntry) {
-        const syncData = getPageSyncData(pageEntry)
-        const templateFilepath = path.resolve(cwd, config.templateRoot, pageEntry.file)
-        render(templateFilepath, syncData, config)
-    } else {
-        const controllerPath = getControllerPath(ctx)
-        callControllerOnce(controllerPath, ctx)
-    }
+app.use(async ctx => {
+    return new Promise((resolve, reject) => {
+        const pageEntry = getPageEntry(ctx)
+        if (pageEntry) {
+            const syncData = getPageSyncData(ctx, pageEntry)
+            let firstTemplateRoot = config.templateRoots[0]
+            const templateFilepath = path.resolve(cwd, firstTemplateRoot, pageEntry.template)
+            render(templateFilepath, syncData, config)
+                .then((html) => {
+                    ctx.body = html
+                    resolve()
+                })
+                .catch((e) => {
+                    console.error(`error`)
+                    console.error(e)
+                    ctx.body = String(e)
+                    resolve()
+                })
+        } else {
+            const controllerPath = getControllerPath(ctx)
+            callControllerOnce(controllerPath, ctx)
+            resolve()
+        }
+    })
 })
 
 app.listen(config.mockServer.port || 3000)

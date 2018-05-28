@@ -5,8 +5,8 @@ module.exports = {
     pageEntries: [
         {
             url: '/page',
-            template: '/page/entry',
-            syncDataPath: '/pageASpecial',
+            template: '/aa/bb/cc.ftl',
+            syncDataPath: 'pageASpecial',
         },
         {
             url: (url) => url.includes('pageEntry'),
@@ -17,7 +17,8 @@ module.exports = {
             template: '/page/entry3',
         },
     ],
-    syncDataRoot: '',
+    templateRoots: ['./template'],
+    syncDataRoot: './sync',
     controllerRoot: './controller',
     specialControllers: [
         {
