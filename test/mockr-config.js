@@ -4,6 +4,15 @@ module.exports = {
     ],
     pageEntries: [
         {
+            url: '/index',
+            template: 'index.ftl',
+            syncDataPath: 'index-data',
+        },
+        {
+            url: '/tanks/shining.do',
+            template: 'pages/tanks/shining.ftl',
+        },
+        {
             url: '/page',
             template: '/aa/bb/cc.ftl',
             syncDataPath: 'pageASpecial',
@@ -31,5 +40,8 @@ module.exports = {
             },
             path: './love/a.js',
         },
+    ],
+    static: [
+        '.',
     ],
 }

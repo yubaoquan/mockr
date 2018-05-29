@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const Koa = require('koa')
-
+const koaStatic = require('koa-static')
 const path = require('path')
 const fs = require('fs')
 const cwd = process.cwd()
@@ -32,7 +32,7 @@ function callControllerOnce(controllerPath, ctx) {
         if (typeof controller === 'function') {
             controller(ctx)
         } else {
-            ctx.response.body = controller
+            ctx.body = controller
         }
         delete require.cache[cacheKey]
     } catch (e) {
@@ -118,7 +118,12 @@ function getPageEntry(ctx) {
 function getPageSyncData(ctx, pageEntry) {
     let requirePath = pageEntry.syncDataPath || ctx.request.path
     requirePath = path.resolve(config.syncDataRoot, requirePath)
-    let data = require(requirePath)
+    let data
+    if (fs.existsSync(requirePath)) {
+        data = require(requirePath)
+    } else {
+        data = {}
+    }
     if (getType(data) === 'function') {
         data = data(ctx)
     }
@@ -126,14 +131,24 @@ function getPageSyncData(ctx, pageEntry) {
     return data
 }
 
+if (config.static) {
+    config.static.forEach((item) => {
+        if (getType(item) === 'string') {
+            let cssPath = path.resolve(cwd, item)
+            console.info(cssPath)
+            app.use(koaStatic(cssPath))
+        } else {
+            app.use(koaStatic(path.resolve(cwd, item.path), item.option || {}))
+        }
+    })
+}
+
 app.use(async ctx => {
     return new Promise((resolve, reject) => {
         const pageEntry = getPageEntry(ctx)
         if (pageEntry) {
             const syncData = getPageSyncData(ctx, pageEntry)
-            let firstTemplateRoot = config.templateRoots[0]
-            const templateFilepath = path.resolve(cwd, firstTemplateRoot, pageEntry.template)
-            render(templateFilepath, syncData, config)
+            render(pageEntry.template, syncData, config)
                 .then((html) => {
                     ctx.body = html
                     resolve()
