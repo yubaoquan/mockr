@@ -50,7 +50,10 @@ If request is not a page to render, mockr will check the special rules to find c
 If found, mockr will use the special controller.
 
 If not found in special rules, mockr will check restfulURLs config.
-If found, mockr will find controller by restful rule: params in request URL will be replaced by `_param`.
+If found, mockr will find controller by restful rule:
+
+params in request URL will be replaced by `_param`.
+
 For example, `/name/Top/age/12` corresponds to `/name/_param/age/_param`.
 
 If still not found, mockr will try to find the controller by default rule.

@@ -67,6 +67,7 @@ Mockr 支持对 freemarker 模板的渲染. 进行页面渲染需要在配置文
 
 如果请求不是页面请求(例如 ajax 请求), mockr 会通过特殊规则寻找 controller. 如果找到了, 直接执行 controller.
 如果通过特殊规则没有找到 controller, mockr 将遍历 `restfulURLs` 查看请求的 url 是否匹配数组中的元素. 如果匹配, 则按照 restful 规则组装 controller 路径寻找 controller 并执行, 规则如下:
+
 将请求 URL 中的参数对应的位置替换成 `_param`, 例如:
 
 `/name/Top/age/12` 替换后的 controller 路径为 `/name/_param/age/_param`.
