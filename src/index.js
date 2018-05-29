@@ -97,7 +97,7 @@ function getControllerPathByRestfulTemplate(template) {
         }
         return part.startsWith('/') ? part.substr(1) : part
     }).join('/')
-    return path.resolve(cwd, config.controllerRoot, `./${controllerRelativePath}`)
+    return path.resolve(cwd, config.controllerRoot, controllerRelativePath)
 }
 
 function getPageEntry(ctx) {
@@ -139,7 +139,6 @@ app.use(async ctx => {
                     resolve()
                 })
                 .catch((e) => {
-                    console.error(`error`)
                     console.error(e)
                     ctx.body = String(e)
                     resolve()
