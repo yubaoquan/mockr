@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "start": "mock",
+        "start": "mockr",
         "debug": "node --inspect-brk=9229 ../src/index"
     },
     "dependencies": {}
