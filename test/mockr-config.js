@@ -23,7 +23,7 @@ module.exports = {
         },
         {
             url: /^\/regexp\/page/,
-            template: '/page/entry3',
+            template: '/page/entry3.ftl',
         },
     ],
     templateRoots: ['./template'],
@@ -31,13 +31,11 @@ module.exports = {
     controllerRoot: 'controller',
     specialControllers: [
         {
-            reg: /^\/ax\//,
+            url: /^\/ax\//,
             path: './xxx/special.js',
         },
         {
-            matcher: (url) => {
-                return url.includes('love')
-            },
+            url: (url) => url.includes('love'),
             path: './love/a.js',
         },
     ],

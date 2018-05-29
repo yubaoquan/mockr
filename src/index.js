@@ -53,10 +53,10 @@ function getControllerPath(ctx) {
 
     // find controller with user custom rules
     const specialController = config.specialControllers.find(item => {
-        if (item.matcher) {
-            return item.matcher(url)
+        switch (getType(item.url)) {
+            case 'regexp': return item.url.test(url)
+            case 'function': return item.url(url)
         }
-        return item.reg.test(url)
     })
 
     if (specialController) {
@@ -106,7 +106,7 @@ function getPageEntry(ctx) {
     }
     return config.pageEntries.find((item) => {
         switch (getType(item.url)) {
-            case 'rexexp': return item.url.test(url)
+            case 'regexp': return item.url.test(url)
             case 'function': return item.url(url)
             case 'string': return item.url === url
             default: return false
