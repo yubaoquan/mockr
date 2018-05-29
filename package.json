@@ -1,6 +1,6 @@
 {
   "name": "@ybq/mockr",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "registry": "https://registry.npmjs.org/",
   "description": "A simple mock server based on koa.",
   "main": "./src/index.js",
@@ -13,8 +13,14 @@
   },
   "keywords": [
     "mock",
-    "koa"
+    "koa",
+    "json",
+    "mockserver"
   ],
+  "repository": {
+      "type": "git",
+      "url": "git+https://github.com/yubaoquan/mockr.git"
+  },
   "author": "yubaoquan",
   "license": "ISC",
   "dependencies": {
