@@ -7,9 +7,7 @@ module.exports = function(config) {
     return function(template, data, config) {
         return new Promise((resolve, reject) => {
             try {
-                render(template, data, (html) => {
-                    resolve(html)
-                })
+                render(template, data, (html) => resolve(html))
             } catch (e) {
                 reject(e)
             }
