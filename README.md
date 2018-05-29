@@ -1,6 +1,8 @@
 # mockr
 A simple mock server based on koa.
 
+[中文文档](https://github.com/yubaoquan/mockr/blob/master/README.cn.md)
+
 ## Install
 
 > npm i @ybq/mockr
@@ -19,7 +21,7 @@ By default, mockr has a rule for all requests: when a request comes, mockr will 
 For example, you request `https://3000/a/b/c`, and the controller root path you set in config file is `controllers`, so the final controller path will be `path.resolve(cwd, controllerRoot, '.', ctx.request.path)`, cwd is the directory of config file. If cwd is `/Usr/xxx`, then the final controller path will be `/Usr/xxx/controllers/a/b/c`. Then, mockr will try to require the controller from that path, if the require result is a function, mockr will invoke it, otherwise mockr will execute `ctx.body = requireResult`. So you can write a json file named `c.json` or `c.js` and put it in `/Usr/xxx/controllers/a/b/`.
 
 ### Restful URL rule
-If there are params in the request URL, for example, the pattern is `/name/${name}/age/${age}`, the real URL is `/name/Tom/age/12`, you can specify the format in config file under `restfulURLs`. the value of this config is an array, each item of the array represents an url pattern. In this example, the config will be like this:
+If there are params in the request URL, for example, the pattern is `/name/${name}/age/${age}`, the real URL is `/name/Tom/age/12`, you can specify the pattern in config file under `restfulURLs`. the value of this config is an array, each item of the array represents an url pattern. In this example, the config will be like this:
 ```
 restfulURLs: [
     ['/name', null, '/age', null],
@@ -41,8 +43,8 @@ Mockr supports freemarker template rendering. You need to config `pageEntries`, 
 
 `syncDataRoot` is like `controllerRoot`, mockr find data file by combining `syncDataRoot` and `syncDataPath`
 
-### Config priority
-When request comming, mockr will first check the `pageEntries` rules to determin wether to render a page or just return data. If request matches in `pageEntries`, and `syncDataRoot` for the request is set, mockr will require the data file to get sync data and render the template file in matched page entry. If `syncDataRoot` is not set, mockr will try to find the sync data file by default rule.
+### Rule priority
+When request comming, mockr will first check the `pageEntries` rules to determin wether to render a page or just return data. If request matches in `pageEntries`, and `syndDataPath` for the request is set, mockr will require the data file to get sync data and render the template file in matched page entry. If `syndDataPath` is not set, mockr will try to find the sync data file by default rule.
 
 If request is not a page to render, mockr will check the special rules to find controller.
 If found, mockr will use the special controller.
