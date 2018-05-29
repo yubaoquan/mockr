@@ -64,7 +64,6 @@ function getControllerPath(ctx) {
     }
 
     if (restfulControllerPath) {
-        console.info(restfulControllerPath)
         return restfulControllerPath
     }
 
@@ -119,11 +118,12 @@ function getPageSyncData(ctx, pageEntry) {
     let requirePath = pageEntry.syncDataPath || ctx.request.path
     requirePath = path.resolve(config.syncDataRoot, requirePath)
     let data
-    if (fs.existsSync(requirePath)) {
+    try {
         data = require(requirePath)
-    } else {
+    } catch (e) {
         data = {}
     }
+
     if (getType(data) === 'function') {
         data = data(ctx)
     }
@@ -135,7 +135,6 @@ if (config.static) {
     config.static.forEach((item) => {
         if (getType(item) === 'string') {
             let cssPath = path.resolve(cwd, item)
-            console.info(cssPath)
             app.use(koaStatic(cssPath))
         } else {
             app.use(koaStatic(path.resolve(cwd, item.path), item.option || {}))

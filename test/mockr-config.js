@@ -4,7 +4,7 @@ module.exports = {
     ],
     pageEntries: [
         {
-            url: '/index',
+            url: (url) => ['', '/', '/index'].includes(url),
             template: 'index.ftl',
             syncDataPath: 'index-data',
         },
@@ -27,8 +27,8 @@ module.exports = {
         },
     ],
     templateRoots: ['./template'],
-    syncDataRoot: './sync',
-    controllerRoot: './controller',
+    syncDataRoot: 'sync',
+    controllerRoot: 'controller',
     specialControllers: [
         {
             reg: /^\/ax\//,
