@@ -63,6 +63,8 @@ If still not found, mockr will try to find the controller by default rule.
 
 1. Only if you modify the config file you need to restart mockr, otherwise you will not need to restart it. It means the change of mock data or controllers will apply immediately.
 
+2. You can set `beforeHandler` and `afterHandler` to handle some logic before and after the controller logic, like set cross domain allow.
+
 ### Demo
 See [test](https://github.com/yubaoquan/mockr/tree/master/test) for more config detail
 

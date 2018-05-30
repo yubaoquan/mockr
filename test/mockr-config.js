@@ -42,4 +42,19 @@ module.exports = {
     static: [
         '.',
     ],
+    beforeHandler(ctx, next) {
+        console.info('before')
+        ctx.response.set('Access-Control-Allow-Origin', '*')
+        ctx.response.set('Access-Control-Allow-Methods', 'GET, POST, DELETE')
+        ctx.body = 'xxx'
+        if (ctx.request.path === '/foo' && ctx.request.method === 'DELETE') {
+            ctx.body = { retCode: 200 }
+        } else {
+            next()
+        }
+    },
+    afterHandler(ctx, next) {
+        console.info(`this is after handler`)
+        next()
+    },
 }

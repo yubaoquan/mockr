@@ -79,6 +79,8 @@ Mockr 支持对 freemarker 模板的渲染. 进行页面渲染需要在配置文
 
 1. 除非修改了配置文件, 否则你不需要重启 mockr. 也就是说, controller 或其他文件的变动是即时生效的.
 
+2. 可以在 controller 前后设置 beforeHandler 和 afterHandler 来达到在 controller 前后插入逻辑的目的, 例如设置跨域允许等.
+
 ### 实例
 等多配置细节, 见 [test](https://github.com/yubaoquan/mockr/tree/master/test)
 

@@ -142,14 +142,18 @@ if (config.static) {
     })
 }
 
-app.use(async ctx => {
-    return new Promise((resolve, reject) => {
+if (config.beforeHandler) {
+    app.use(config.beforeHandler)
+}
+app.use(async (ctx, next) => {
+    return new Promise(async (resolve, reject) => {
         const pageEntry = getPageEntry(ctx)
         if (pageEntry) {
             const syncData = getPageSyncData(ctx, pageEntry)
             render(pageEntry.template, syncData, config)
-                .then((html) => {
+                .then(async (html) => {
                     ctx.body = html
+                    await next()
                     resolve()
                 })
                 .catch((e) => {
@@ -160,9 +164,14 @@ app.use(async ctx => {
         } else {
             const controllerPath = getControllerPath(ctx)
             callControllerOnce(controllerPath, ctx)
+            await next()
             resolve()
         }
     })
 })
+
+if (config.afterHandler) {
+    app.use(config.afterHandler)
+}
 
 app.listen(config.mockServer.port || 3000)
