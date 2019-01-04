@@ -23,9 +23,10 @@ module.exports = {
     },
     {
       url: /^\/regexp\/page/,
-      template: '/page/entry3.ftl',
+      template: '/page/entry3.html',
     },
   ],
+  noTemplateEngine: true,
   templateRoots: ['./template'],
   syncDataRoot: 'sync',
   controllerRoot: 'controller',

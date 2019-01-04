@@ -2,104 +2,14 @@
 const Koa = require('koa');
 const koaStatic = require('koa-static');
 const path = require('path');
-const fs = require('fs');
+const callControllerOnce = require('./call-controller');
+
+const { getType } = require('./util/type');
+const config = require('./get-config')();
+const renderer = require('./renderer')(config);
 
 const cwd = process.cwd();
-const { getType } = require('./util/type');
-
-const configFilepath = path.resolve(cwd, './mockr-config.js');
-if (!fs.existsSync(configFilepath)) {
-  console.error(`Can't find config file ${configFilepath}`);
-  process.exit(1);
-}
-
-let config = require(configFilepath);
-config = Object.assign({
-  specialControllers: {},
-  controllerRoot: cwd,
-  mockServer: {
-    port: 3000,
-  },
-}, config);
-
-const render = require('./render')(config);
-
 const app = new Koa();
-
-function callControllerOnce(controllerPath, ctx) {
-  try {
-    const cacheKey = require.resolve(controllerPath);
-    const controller = require(controllerPath);
-    if (typeof controller === 'function') {
-      controller(ctx);
-    } else {
-      ctx.body = controller;
-    }
-    delete require.cache[cacheKey];
-  } catch (e) {
-    const errMsg = `Controller ${controllerPath} not found`;
-    console.error(errMsg);
-    ctx.body = errMsg;
-  }
-}
-
-function getControllerPath(ctx) {
-  const { url } = ctx.request;
-  const { controllerRoot } = config;
-  // find controller with default match rule
-  const normalControllerPath = path.resolve(cwd, controllerRoot, `.${ctx.request.path}`);
-
-  // find controller with restful rule
-  const restfulControllerPath = getRestfulControllerPath(ctx.path);
-
-  // find controller with user custom rules
-  const specialController = config.specialControllers.find((item) => {
-    switch (getType(item.url)) {
-      case 'regexp': return item.url.test(url);
-      case 'function': return item.url(url);
-      default:
-    }
-  });
-
-  if (specialController) {
-    return path.resolve(cwd, controllerRoot, specialController.path);
-  }
-
-  if (restfulControllerPath) {
-    return restfulControllerPath;
-  }
-
-  return normalControllerPath;
-}
-
-function getRestfulControllerPath(requestPath) {
-  const pathSlices = requestPath.substr(1).split('/');
-  const matchedItem = config.restfulURLs.find((restfulURL) => {
-    if (restfulURL.length !== pathSlices.length) {
-      return false;
-    }
-    const everyEq = restfulURL.every((part, index) => {
-      if (part == null) {
-        return true;
-      }
-      return part === `/${pathSlices[index]}`;
-    });
-    return everyEq;
-  });
-  if (matchedItem) {
-    return getControllerPathByRestfulTemplate(matchedItem);
-  }
-}
-
-function getControllerPathByRestfulTemplate(template) {
-  const controllerRelativePath = template.map((part) => {
-    if (part == null) {
-      return '_param';
-    }
-    return part.startsWith('/') ? part.substr(1) : part;
-  }).join('/');
-  return path.resolve(cwd, config.controllerRoot, controllerRelativePath);
-}
 
 function getPageEntry(ctx) {
   const { url, request } = ctx;
@@ -153,7 +63,7 @@ app.use(async (ctx, next) => {
   if (pageEntry) {
     const syncData = getPageSyncData(ctx, pageEntry);
     try {
-      const html = await render(pageEntry.template, syncData, config);
+      const html = await renderer(pageEntry.template, syncData, config);
       ctx.body = html;
       await next();
     } catch (e) {
@@ -161,8 +71,7 @@ app.use(async (ctx, next) => {
       ctx.body = String(e);
     }
   } else {
-    const controllerPath = getControllerPath(ctx);
-    callControllerOnce(controllerPath, ctx);
+    callControllerOnce(ctx, config);
     await next();
   }
 });
