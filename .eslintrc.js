@@ -17,6 +17,7 @@ module.exports = {
     'no-use-before-define': 0,
     'consistent-return': 0,
     'array-callback-return': 0,
-    'func-names': 0
+    'func-names': 0,
+    quotes: ['error', 'single', { 'allowTemplateLiterals': true }]
   },
 };

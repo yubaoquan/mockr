@@ -147,28 +147,25 @@ if (config.static) {
 if (config.beforeHandler) {
   app.use(config.beforeHandler);
 }
-app.use(async (ctx, next) => new Promise(async (resolve) => {
+
+app.use(async (ctx, next) => {
   const pageEntry = getPageEntry(ctx);
   if (pageEntry) {
     const syncData = getPageSyncData(ctx, pageEntry);
-    render(pageEntry.template, syncData, config)
-      .then(async (html) => {
-        ctx.body = html;
-        await next();
-        resolve();
-      })
-      .catch((e) => {
-        console.error(e);
-        ctx.body = String(e);
-        resolve();
-      });
+    try {
+      const html = await render(pageEntry.template, syncData, config);
+      ctx.body = html;
+      await next();
+    } catch (e) {
+      console.error(e);
+      ctx.body = String(e);
+    }
   } else {
     const controllerPath = getControllerPath(ctx);
     callControllerOnce(controllerPath, ctx);
     await next();
-    resolve();
   }
-}));
+});
 
 if (config.afterHandler) {
   app.use(config.afterHandler);
