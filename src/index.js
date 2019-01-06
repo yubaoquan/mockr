@@ -71,7 +71,7 @@ app.use(async (ctx, next) => {
       ctx.body = String(e);
     }
   } else {
-    callControllerOnce(ctx, config);
+    await callControllerOnce(ctx, config);
     await next();
   }
 });

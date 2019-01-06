@@ -4,14 +4,14 @@ const config = require('./get-config')();
 
 const cwd = process.cwd();
 
-function callControllerOnce(ctx) {
+async function callControllerOnce(ctx) {
   let controllerPath;
   try {
     controllerPath = getControllerPath(ctx);
     const cacheKey = require.resolve(controllerPath);
     const controller = require(controllerPath);
     if (typeof controller === 'function') {
-      controller(ctx);
+      await controller(ctx);
     } else {
       ctx.body = controller;
     }
