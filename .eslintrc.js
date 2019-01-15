@@ -18,6 +18,11 @@ module.exports = {
     'consistent-return': 0,
     'array-callback-return': 0,
     'func-names': 0,
-    quotes: ['error', 'single', { 'allowTemplateLiterals': true }]
+    quotes: ['error', 'single', { 'allowTemplateLiterals': true }],
+    'space-before-function-paren': ['error', {
+      anonymous: "never",
+      named: "never",
+      asyncArrow: "always"
+    }]
   },
 };

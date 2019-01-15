@@ -6,20 +6,22 @@ const cwd = process.cwd();
 
 async function callControllerOnce(ctx) {
   let controllerPath;
+  let cacheKey = '';
   try {
     controllerPath = getControllerPath(ctx);
-    const cacheKey = require.resolve(controllerPath);
+    cacheKey = require.resolve(controllerPath);
     const controller = require(controllerPath);
     if (typeof controller === 'function') {
       await controller(ctx);
     } else {
       ctx.body = controller;
     }
-    delete require.cache[cacheKey];
   } catch (e) {
-    const errMsg = `Controller ${controllerPath} not found`;
-    console.error(errMsg);
+    const errMsg = `Error calling controller ${controllerPath}`;
+    console.error(e);
     ctx.body = errMsg;
+  } finally {
+    delete require.cache[cacheKey];
   }
 }
 

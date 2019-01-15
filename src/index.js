@@ -26,23 +26,6 @@ function getPageEntry(ctx) {
   });
 }
 
-function getPageSyncData(ctx, pageEntry) {
-  let requirePath = pageEntry.syncDataPath || ctx.request.path;
-  requirePath = path.resolve(config.syncDataRoot, requirePath);
-  let data;
-  try {
-    data = require(requirePath);
-  } catch (e) {
-    data = {};
-  }
-
-  if (getType(data) === 'function') {
-    data = data(ctx);
-  }
-  delete require.cache[requirePath];
-  return data;
-}
-
 if (config.static) {
   config.static.forEach((item) => {
     if (getType(item) === 'string') {
@@ -61,9 +44,8 @@ if (config.beforeHandler) {
 app.use(async (ctx, next) => {
   const pageEntry = getPageEntry(ctx);
   if (pageEntry) {
-    const syncData = getPageSyncData(ctx, pageEntry);
     try {
-      const html = await renderer(pageEntry.template, syncData, config);
+      const html = await renderer(pageEntry, ctx);
       ctx.body = html;
       await next();
     } catch (e) {
@@ -80,4 +62,6 @@ if (config.afterHandler) {
   app.use(config.afterHandler);
 }
 
-app.listen(config.mockServer.port || 3000);
+const port = config.mockServer.port || 3000;
+app.listen(port);
+console.info(`Mockr listening on port ${port}`);
