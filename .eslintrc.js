@@ -23,6 +23,7 @@ module.exports = {
       anonymous: "never",
       named: "never",
       asyncArrow: "always"
-    }]
+    }],
+    'no-param-reassign': 0,
   },
 };
