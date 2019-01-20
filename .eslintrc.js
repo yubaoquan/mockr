@@ -25,5 +25,6 @@ module.exports = {
       asyncArrow: "always"
     }],
     'no-param-reassign': 0,
+    'no-unused-vars': 1,
   },
 };

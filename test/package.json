@@ -1,7 +1,9 @@
 {
-    "scripts": {
-        "start": "mockr",
-        "debug": "node --inspect-brk=9229 ../src/index"
-    },
-    "dependencies": {}
+  "scripts": {
+    "start": "mockr",
+    "debug": "node --inspect-brk=9229 ../src/index",
+    "tm": "node --inspect-brk=9229 ./src/mock-data/test"
+
+  },
+  "dependencies": {}
 }

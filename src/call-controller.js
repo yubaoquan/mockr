@@ -1,6 +1,7 @@
 const path = require('path');
 const { getType } = require('./util/type');
 const config = require('./get-config')();
+const mock = require('./mock-data');
 
 const cwd = process.cwd();
 
@@ -14,7 +15,7 @@ async function callControllerOnce(ctx) {
     if (typeof controller === 'function') {
       await controller(ctx);
     } else {
-      ctx.body = controller;
+      ctx.body = mock(controller);
     }
   } catch (e) {
     const errMsg = `Error calling controller ${controllerPath}`;

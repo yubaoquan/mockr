@@ -1,6 +1,6 @@
 {
   "name": "@ybq/mockr",
-  "version": "0.2.6",
+  "version": "0.3.6",
   "registry": "https://registry.npmjs.org/",
   "description": "A simple mock server based on koa.",
   "main": "./src/index.js",
@@ -29,7 +29,8 @@
   "dependencies": {
     "@ybq/jmockr-ftl-render": "0.0.2",
     "koa": "^2.5.1",
-    "koa-static": "^4.0.3"
+    "koa-static": "^4.0.3",
+    "mockjs": "^1.0.1-beta3"
   },
   "devDependencies": {
     "eslint": "^5.11.1",
