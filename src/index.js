@@ -37,8 +37,18 @@ if (config.static) {
   });
 }
 
-if (config.beforeHandler) {
-  app.use(config.beforeHandler);
+if (config.beforeController) {
+  const valueType = getType(config.beforeController);
+  if (valueType === 'string') {
+    const controllerPath = path.resolve(cwd, config.controllerRoot, config.beforeController);
+    app.use(async (ctx, next) => {
+      await callControllerOnce(ctx, controllerPath, next);
+    });
+  } else if (/function/.test(valueType)) { // function and asyncfunction
+    app.use(config.beforeController);
+  } else {
+    console.error('beforeController must be either string or function');
+  }
 }
 
 app.use(async (ctx, next) => {
@@ -53,13 +63,22 @@ app.use(async (ctx, next) => {
       ctx.body = String(e);
     }
   } else {
-    await callControllerOnce(ctx, config);
-    await next();
+    await callControllerOnce(ctx, null, next);
   }
 });
 
-if (config.afterHandler) {
-  app.use(config.afterHandler);
+if (config.afterController) {
+  const valueType = getType(config.afterController);
+  if (valueType === 'string') {
+    const controllerPath = path.resolve(cwd, config.controllerRoot, config.afterController);
+    app.use(async (ctx, next) => {
+      await callControllerOnce(ctx, controllerPath, next);
+    });
+  } else if (/function/.test(valueType)) { // function and asyncfunction
+    app.use(config.afterController);
+  } else {
+    console.error('afterController must be either string or function');
+  }
 }
 
 const port = config.mockServer.port || 3000;

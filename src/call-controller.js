@@ -2,25 +2,19 @@ const path = require('path');
 const { getType } = require('./util/type');
 const config = require('./get-config')();
 const mock = require('./mock-data');
+const mockrDefaultController = require('./default-controller');
 
 const cwd = process.cwd();
 
-async function callControllerOnce(ctx) {
-  let controllerPath;
+async function callControllerOnce(ctx, controllerPath, next) {
   let cacheKey = '';
   try {
-    controllerPath = getControllerPath(ctx);
+    controllerPath = controllerPath || getControllerPath(ctx);
     cacheKey = require.resolve(controllerPath);
     const controller = require(controllerPath);
-    if (typeof controller === 'function') {
-      await controller(ctx);
-    } else {
-      ctx.body = mock(controller);
-    }
+    commonPlay(ctx, next, controller);
   } catch (e) {
-    const errMsg = `Error calling controller ${controllerPath}`;
-    console.error(e);
-    ctx.body = errMsg;
+    callDafaultController(ctx, next, e);
   } finally {
     delete require.cache[cacheKey];
   }
@@ -84,4 +78,41 @@ function getControllerPathByRestfulTemplate(template) {
   return path.resolve(cwd, config.controllerRoot, controllerRelativePath);
 }
 
+async function callDafaultController(ctx, next, error) {
+  let cacheKey;
+  const { defaultController = mockrDefaultController } = config;
+  try {
+    let controller = defaultController;
+    if (getType(defaultController) === 'string') {
+      const controllerPath = path.resolve(cwd, config.controllerRoot, defaultController);
+      cacheKey = require.resolve(controllerPath);
+      controller = require(controllerPath);
+    }
+    ctx.error = error;
+    await commonPlay(ctx, next, controller);
+  } catch (e) {
+    console.error(error);
+    const errMsg = `Error calling default controller ${defaultController}`;
+    console.error(e);
+    ctx.body = errMsg;
+  } finally {
+    if (cacheKey) {
+      delete require.cache[cacheKey];
+    }
+  }
+}
+
+async function commonPlay(ctx, next, controller) {
+  if (typeof controller === 'function') {
+    if (controller.length > 1) { // controller的参数是否有next
+      await controller(ctx, next);
+    } else {
+      await controller(ctx);
+      await next();
+    }
+  } else {
+    ctx.body = mock(controller);
+    await next();
+  }
+}
 module.exports = callControllerOnce;

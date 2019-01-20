@@ -4,7 +4,7 @@
 
 ## 安装
 
-> npm i @ybq/mockr
+> npm i -g @ybq/mockr
 
 ## 用法
 
@@ -13,9 +13,76 @@
 mockr 会在当前目录(执行命令的目录)下寻找名为 `mockr-config.js` 的配置文件
 
 ## 配置
+一下是一个配置的示例
+```
+module.exports = {
+  restfulURLs: [
+    ['/a', null, '/b', null],
+  ],
+  pageEntries: [
+    {
+      url: url => ['', '/', '/index'].includes(url),
+      template: 'index.ftl',
+      syncDataPath: 'index-data',
+    },
+    {
+      url: '/tanks/shining.do',
+      template: 'pages/tanks/shining.ftl',
+    },
+    {
+      url: '/page',
+      template: '/aa/bb/cc.ftl',
+      syncDataPath: 'pageASpecial',
+    },
+    {
+      url: url => url.includes('pageEntry'),
+      template: 'page/entry2.ftl',
+    },
+    {
+      url: /^\/regexp\/page/,
+      template: '/page/entry3.html',
+    },
+  ],
+  noTemplateEngine: true,
+  templateRoots: ['./template'],
+  syncDataRoot: 'sync',
+  controllerRoot: 'controller',
+  specialControllers: [
+    {
+      url: /^\/ax\//,
+      path: './xxx/special.js',
+    },
+    {
+      url: url => url.includes('love'),
+      path: './love/a.js',
+    },
+  ],
+  static: [
+    '.',
+  ],
+  async beforeController(ctx, next) {
+    console.info('before');
+    ctx.response.set('Access-Control-Allow-Origin', '*');
+    ctx.response.set('Access-Control-Allow-Methods', 'GET, POST, DELETE');
+    if (ctx.request.path === '/foo' && ctx.request.method === 'DELETE') {
+      ctx.body = { retCode: 200 };
+    } else {
+      await next();
+    }
+  },
+  async afterController(ctx, next) {
+    console.info('this is after handler');
+    await next();
+  },
+};
+
+```
+
+## 请求匹配
+mockr的核心概念是请求匹配. mockr只是对koa做了一层简单的包装, 当请求到来时, mockr 会结合请求的path和配置的映射规则, 找到controller或数据文件的位置.
 
 ### 默认匹配规则
-如果没有特殊指明, mockr 对所有的请求使用一条默认的匹配规则: 当一个请求到达时, mockr 将在 controller 路径(由配置文件中配置的根 `controllerRoot` 和请求的 path 拼接而成)寻找并执行 controller.
+如果没有特殊指明, mockr 对所有的请求使用默认的匹配规则: 当一个请求到达时, mockr 将在 controller 路径(由配置文件中配置的根 `controllerRoot` 和请求的 path 拼接而成)寻找并执行 controller.
 
 例如有如下请求: `https://3000/a/b/c`, 配置文件中的 `controllerRoot` 配置为 `controllers`. mockr 中 controller 的拼装逻辑如下
 ```
@@ -24,7 +91,7 @@ let controllerPath = path.resolve(cwd, controllerRoot, '.', ctx.request.path)
 cwd 是配置文件所在的文件夹, 如果 cwd 是`/Usr/xxx`, 则最终的 controller 路径为 `/Usr/xxx/controllers/a/b/c`. 此时, mockr 将尝试从这个路径 require controller 文件. 如果 require 得到的是一个函数, mockr 将执行该函数, 否则执行下面的逻辑:
 
 ```
-ctx.body = requireResult
+ctx.body = mock(requireResult)
 ```
 所以你可以在 `/Usr/xxx/controllers/a/b/` 路径添加一个 `c.js` 或 `c.json` 作为 controller
 
@@ -54,6 +121,7 @@ let matched = url === ${requestURL}
 如果执行结果为 true, mockr 将执行此元素 path 属性指定的 controller
 
 ### 页面渲染
+1. Freemarker
 Mockr 支持对 freemarker 模板的渲染. 进行页面渲染需要在配置文件中配置 `pageEntries`, `templateRoots`, `syncDataRoot` 和 `static`
 
 `templateRoots` 是字符串数组, 每个元素代表一个文件夹, 文件夹内放置模板文件. 通常情况你只需要设置一个就够了.
@@ -61,6 +129,9 @@ Mockr 支持对 freemarker 模板的渲染. 进行页面渲染需要在配置文
 `pageEntries` 也是一个数组, 数组中每个元素时包含两个或三个属性(`url`, `template`, `syncDataPath`)的对象(`syncDataPath` 可省略). `url` 同上面特殊规则提到的 url 一样, `template` 是请求对应的模板文件路径, `syndDataPath` 类似于 controller, 它提供用于渲染页面的同步数据.
 
 获取一个请求的同步数据时, Mockr 将 `syncDataRoot` 和 `syncDataPath` 合并, 得到一个路径, 然后使用和 controller 相同的逻辑, 得到同步数据, 塞到模板中进行渲染
+
+2. HTML
+mockr也支持不使用模板引擎, 直接取html文件输出到前端. 配置 `noTempalteEngine: true`. 当请求到来时, mockr根据规则寻找到html文件输出到前端
 
 ### 规则优先级
 请求到来是, mockr 先遍历检查 `pageEntries` 规则, 查看请求是否是一个页面请求. 如果是页面请求, 并且配置了 `syndDataPath`, mockr 将 require 数据文件并渲染页面. 如果 `syncDataPath` 没配置, mockr 将使用默认规则获取同步数据并进行渲染.
@@ -75,11 +146,14 @@ Mockr 支持对 freemarker 模板的渲染. 进行页面渲染需要在配置文
 如果仍然没有找到 controller, mockr 将根据默认规则寻找 controller
 
 
+### 前端资源
+`static` 配置项用于设置前端资源(css/js/img/font)的路径. mockr内部使用`koa-static`来处理前端资源请求
+
 ### 特性
 
 1. 除非修改了配置文件, 否则你不需要重启 mockr. 也就是说, controller 或其他文件的变动是即时生效的.
 
-2. 可以在 controller 前后设置 beforeHandler 和 afterHandler 来达到在 controller 前后插入逻辑的目的, 例如设置跨域允许等.
+2. 可以在 controller 前后设置 beforeController 和 afterController 来达到在 controller 前后插入逻辑的目的, 例如设置跨域允许等.
 
 ### 实例
 等多配置细节, 见 [test](https://github.com/yubaoquan/mockr/tree/master/test)

@@ -43,18 +43,16 @@ module.exports = {
   static: [
     '.',
   ],
-  async beforeHandler(ctx, next) {
-    console.info('before');
-    ctx.response.set('Access-Control-Allow-Origin', '*');
-    ctx.response.set('Access-Control-Allow-Methods', 'GET, POST, DELETE');
-    if (ctx.request.path === '/foo' && ctx.request.method === 'DELETE') {
-      ctx.body = { retCode: 200 };
-    } else {
-      await next();
-    }
-  },
-  async afterHandler(ctx, next) {
+  beforeController: './before.js',
+  async afterController(ctx, next) {
     console.info('this is after handler');
     await next();
   },
+  defaultController: './default.js',
+  // async defaultController(ctx, next) {
+  //   console.info('this is default controller');
+  //   console.info(ctx.error);
+  //   ctx.body = ctx.error && ctx.error.stack;
+  //   await next();
+  // },
 };
