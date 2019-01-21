@@ -48,6 +48,9 @@ module.exports = {
     console.info('this is after handler');
     await next();
   },
+  onStartUp() {
+    console.info(`onstartup called`);
+  },
   defaultController: './default.js',
   // async defaultController(ctx, next) {
   //   console.info('this is default controller');

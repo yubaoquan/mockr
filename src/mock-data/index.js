@@ -125,7 +125,7 @@ function isMockjsFormat(key, value) {
       /./,
     ],
   };
-  return regs[valueType].some(reg => reg.test(key));
+  return (regs[valueType] || []).some(reg => reg.test(key));
 }
 
 module.exports = mock;

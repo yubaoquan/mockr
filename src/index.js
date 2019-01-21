@@ -84,3 +84,6 @@ if (config.afterController) {
 const port = config.mockServer.port || 3000;
 app.listen(port);
 console.info(`Mockr listening on port ${port}`);
+if (config.onStartUp) {
+  config.onStartUp();
+}

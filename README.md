@@ -83,6 +83,9 @@ module.exports = {
     console.info('this is after handler');
     await next();
   },
+  onStartUp() {
+    console.info('server started');
+  },
 };
 
 ```

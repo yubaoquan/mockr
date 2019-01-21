@@ -3,3 +3,6 @@
 
 ### 0.4.0
 1. Add `defaultController` config option;
+
+### 0.5.0
+1. Add `onStartUp` hook.
