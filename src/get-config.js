@@ -15,6 +15,12 @@ config = Object.assign({
   mockServer: {
     port: 3000,
   },
+  async preStart() {
+    return true;
+  },
+  onStartUp() {
+
+  },
 }, config);
 
 module.exports = () => config;
