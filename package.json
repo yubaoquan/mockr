@@ -1,6 +1,6 @@
 {
   "name": "@ybq/mockr",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "registry": "https://registry.npmjs.org/",
   "description": "A simple mock server based on koa.",
   "main": "./src/index.js",

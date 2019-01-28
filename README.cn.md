@@ -35,7 +35,7 @@ module.exports = {
       syncDataPath: 'pageASpecial',
     },
     {
-      url: url => url.includes('pageEntry'),
+      url: ctx => ctx.url.includes('pageEntry'),
       template: 'page/entry2.ftl',
     },
     {
@@ -114,7 +114,7 @@ restfulURLs: [
 ```
 
 ### 特殊规则
-如果以上的规则不能满足你的需求, 你也可以定制自己的 controller 映射规则. 编辑配置文件中的 `specialControllers`, 此配置项的值是一个数组, 数组中的每一项是包含两个属性(`url`, `path`)的对象, `url` 属性可以是正则表达式, 函数或字符串. `path` 是 controller 相对 `controllerRoot` 的路径. 如果 `url` 是正则表达式, mockr 会执行正则匹配 `url.test(${requestURL})`; 如果 `url` 是函数, mockr 会将请求的 url 传入 `url` 函数获取匹配结果, 否则 mockr 直接比较 `url` 是否等于请求的 URL, 即如下:
+如果以上的规则不能满足你的需求, 你也可以定制自己的 controller 映射规则. 编辑配置文件中的 `specialControllers`, 此配置项的值是一个数组, 数组中的每一项是包含两个属性(`url`, `path`)的对象, `url` 属性可以是正则表达式, 函数或字符串. `path` 是 controller 相对 `controllerRoot` 的路径. 如果 `url` 是正则表达式, mockr 会执行正则匹配 `url.test(${requestURL})`; 如果 `url` 是函数, mockr 会将请求的上下文 ctx 传入 `url` 函数获取匹配结果, 否则 mockr 直接比较 `url` 是否等于请求的 URL, 即如下:
 ```
 let matched = url === ${requestURL}
 ```
@@ -151,7 +151,7 @@ mockr也支持不使用模板引擎, 直接取html文件输出到前端. 配置 
 
 ### 特性
 
-1. 除非修改了配置文件, 否则你不需要重启 mockr. 也就是说, controller 或其他文件的变动是即时生效的.
+1. controller 文件的变动是即时生效的, 修改 controller 文件不需要重启 mockr. (如果修改的是被controller文件引用的文件或配置文件, 则需要重启mockr)
 
 2. 可以在 controller 前后设置 beforeController 和 afterController 来达到在 controller 前后插入逻辑的目的, 例如设置跨域允许等.
 

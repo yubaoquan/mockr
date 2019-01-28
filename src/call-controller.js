@@ -33,7 +33,7 @@ function getControllerPath(ctx) {
   const specialController = config.specialControllers.find((item) => {
     switch (getType(item.url)) {
       case 'regexp': return item.url.test(url);
-      case 'function': return item.url(url);
+      case 'function': return item.url(ctx);
       default:
     }
   });

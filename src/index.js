@@ -19,7 +19,7 @@ function getPageEntry(ctx) {
   return config.pageEntries.find((item) => {
     switch (getType(item.url)) {
       case 'regexp': return item.url.test(url);
-      case 'function': return item.url(url);
+      case 'function': return item.url(ctx);
       case 'string': return item.url === url;
       default: return false;
     }

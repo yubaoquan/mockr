@@ -44,7 +44,7 @@ module.exports = {
       syncDataPath: 'pageASpecial',
     },
     {
-      url: url => url.includes('pageEntry'),
+      url: ctx => ctx.url.includes('pageEntry'),
       template: 'page/entry2.ftl',
     },
     {
@@ -113,7 +113,7 @@ restfulURLs: [
 If rules above are not enough, you can write you own rules to match controllers in special places.
 You can set `specialControllers` in config file, which is an object array, each item of it contains two properties: `url` and `path`, url can be regexp, function or string, path is the relative controller path to `controllerRoot`.
 If url is regexp, mockr will execute `url.test(${requestURL})`;
-If url is function, mockr will execute `url(${requestURL})`, otherwise mockr will just check `url === ${requestURL}`.
+If url is function, mockr will execute `url(ctx)`, the ctx is a koa [ctx](https://koajs.com/#context). otherwise mockr will just check `url === ${requestURL}`.
 If check result is true, mockr will invoke the controller specified by the item.
 
 ### Page rendering

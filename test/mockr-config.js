@@ -18,7 +18,7 @@ module.exports = {
       syncDataPath: 'pageASpecial',
     },
     {
-      url: url => url.includes('pageEntry'),
+      url: ctx => ctx.url.includes('pageEntry'),
       template: 'page/entry2.ftl',
     },
     {
@@ -36,7 +36,7 @@ module.exports = {
       path: './xxx/special.js',
     },
     {
-      url: url => url.includes('love'),
+      url: ctx => ctx.url.includes('love'),
       path: './love/a.js',
     },
   ],
