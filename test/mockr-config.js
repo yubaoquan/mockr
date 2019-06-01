@@ -26,7 +26,7 @@ module.exports = {
       template: '/page/entry3.html',
     },
   ],
-  noTemplateEngine: true,
+  noTemplateEngine: false,
   templateRoots: ['./template'],
   syncDataRoot: 'sync',
   controllerRoot: 'controller',

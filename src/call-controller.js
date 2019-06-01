@@ -12,7 +12,7 @@ async function callControllerOnce(ctx, controllerPath, next) {
     controllerPath = controllerPath || getControllerPath(ctx);
     cacheKey = require.resolve(controllerPath);
     const controller = require(controllerPath);
-    commonPlay(ctx, next, controller);
+    await commonPlay(ctx, next, controller);
   } catch (e) {
     callDafaultController(ctx, next, e);
   } finally {

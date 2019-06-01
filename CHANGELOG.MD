@@ -12,3 +12,6 @@
 
 ### 0.6.1
 1. when url of pageEntries item is function, pass the ctx to utl, instead of ctx.url
+
+### 0.6.2
+1. Fix returning before render when request is a template page request
